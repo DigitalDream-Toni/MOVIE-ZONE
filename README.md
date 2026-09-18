@@ -23,13 +23,21 @@ cd backend
 pip install -r requirements.txt
 ```
 
-### 3. Start the server
+### 3. Configure environment
+```bash
+cd backend
+cp .env.example .env   # Edit if needed
+```
+
+The default `.env` works out of the box. Change `JWT_SECRET` for production.
+
+### 4. Start the server
 ```bash
 cd backend
 python main.py
 ```
 
-### 4. Open in browser
+### 5. Open in browser
 - **Public site:** http://localhost:8000/frontend/
 - **Admin panel:** http://localhost:8000/admin/login.html
 - **Admin dashboard:** http://localhost:8000/admin/dashboard.html
@@ -37,7 +45,7 @@ python main.py
 
 > **Note:** You can also use VS Code Live Server on port 5501 for the frontend, but API calls still go to port 8000.
 
-### 5. Admin login
+### 6. Admin login
 - Username: `admin`
 - Password: `admin123`
 
@@ -78,8 +86,9 @@ MOVIE ZONE/
 |       |-- admin.js         # Admin JavaScript
 |
 |-- backend/                  # Python backend (FastAPI)
-    |-- main.py              # Main server file (START HERE)
-    |-- requirements.txt     # Python packages to install
+|   |-- main.py              # Main server file (START HERE)
+|   |-- .env                 # Environment variables (JWT secret, port)
+|   |-- requirements.txt     # Python packages to install
     |-- db/
     |   |-- __init__.py      # Database setup + sample data
     |   |-- moviezone.db     # SQLite database (auto-created)
@@ -189,9 +198,9 @@ The project includes a `.gitignore` that excludes:
 - Temp files (`server.log`, `token.txt`, `headers.txt`)
 - IDE settings (`.vscode/`)
 - OS files (`.DS_Store`, `Thumbs.db`)
-- Secrets (`.env`)
+- Root-level `.env` files
 
-The SQLite database (`moviezone.db`) is **not** ignored — it gets committed to GitHub as a backup.
+The SQLite database (`moviezone.db`) and `backend/.env` are **not** ignored — they get committed to GitHub so the app works out of the box after cloning.
 
 ## Testing
 

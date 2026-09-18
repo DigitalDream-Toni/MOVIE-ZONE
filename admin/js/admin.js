@@ -2,16 +2,20 @@
    MOVIE ZONE - Admin Dashboard JavaScript
    ============================================ */
 
-// Auto-detect backend: if served from Live Server (port 5500),
-// point API calls to the FastAPI backend on port 8000.
-// If served from FastAPI itself, use relative paths.
-const API_BASE = window.location.port === '8000' ? '/api' : 'http://localhost:8000/api';
+// Backend location: the deployed FastAPI server on Render.
+// This is the ONE place to change if the backend URL ever moves.
+const API_URL = 'https://movie-zone-qgda.onrender.com';
+
+// Auto-detect backend: if the site is served by the FastAPI server itself
+// (localhost:8000), use relative paths. Otherwise (Vercel, Live Server, ...)
+// point API calls at the Render backend.
+const API_BASE = window.location.port === '8000' ? '/api' : `${API_URL}/api`;
 
 // Origin of the backend server, used to resolve image URLs.
 // The API returns root-relative image paths like /api/upload/images/poster/x.jpg.
-// When pages are served from Live Server (port 5500), those must be
-// prefixed with the backend origin or the browser 404s them.
-const API_ORIGIN = window.location.port === '8000' ? '' : 'http://localhost:8000';
+// When pages aren't served from the backend itself, those must be prefixed
+// with the backend origin or the browser 404s them.
+const API_ORIGIN = window.location.port === '8000' ? '' : API_URL;
 
 // Convert an image path from the API into a URL the browser can load.
 function mediaUrl(path, fallback = 'https://picsum.photos/seed/default/90/130') {

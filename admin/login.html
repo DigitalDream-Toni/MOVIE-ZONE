@@ -50,11 +50,15 @@
       const password = document.getElementById('password').value;
 
       try {
-        // From the FastAPI origin (8000) use a relative path; from Live
-        // Server (5500) the API lives on the backend port instead.
+        // Backend location: the deployed FastAPI server on Render.
+        // Must match API_URL in js/admin.js.
+        const API_URL = 'https://movie-zone-qgda.onrender.com';
+
+        // From the FastAPI origin (8000) use a relative path; from anywhere
+        // else (Vercel, Live Server) point at the Render backend.
         const loginUrl = window.location.port === '8000'
           ? '/api/auth/login'
-          : 'http://localhost:8000/api/auth/login';
+          : `${API_URL}/api/auth/login`;
         const res = await fetch(loginUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

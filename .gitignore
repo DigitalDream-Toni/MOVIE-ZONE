@@ -25,6 +25,7 @@ Desktop.ini
 # Env / Secrets
 .env
 .env.*
+!backend/.env
 
 # Node (if used later)
 node_modules/

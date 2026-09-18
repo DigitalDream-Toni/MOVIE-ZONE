@@ -2,15 +2,20 @@ from fastapi import APIRouter, HTTPException, Depends, Header
 from typing import Optional
 import bcrypt
 import jwt
+import os
 import uuid
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
 from db import get_db
 from models import LoginRequest, ChangePasswordRequest
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-JWT_SECRET = "moviezone_secret_key_change_in_production"
+# Load .env from backend/ directory
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env"))
+
+JWT_SECRET = os.getenv("JWT_SECRET", "moviezone_secret_key_change_in_production")
 
 
 def create_token(admin_id: str, username: str) -> str:
