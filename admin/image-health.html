@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Health - MOVIE ZONE Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%23e50914'/><text y='70' x='50' text-anchor='middle' font-size='60' fill='white' font-weight='bold'>MZ</text></svg>">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo"><h2>MZ <span class="badge">WELCOME</span></h2></div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+        <a href="add-content.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add Content</a>
+        <div class="nav-divider"></div>
+        <a href="manage-movies.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>Movies</a>
+        <a href="manage-series.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>Series</a>
+        <a href="image-health.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Image Health</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="/frontend/index.html" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>View Public Site</a>
+        <a href="#" onclick="logout(); return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout</a>
+      </div>
+    </aside>
+    <div class="sidebar-overlay"></div>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <div class="header-left">
+          <button class="sidebar-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+          <h1>Content URL Health</h1>
+        </div>
+        <div class="admin-header-actions">
+          <div class="header-actions-group" style="gap:0.5rem;">
+          <button class="btn btn-primary" id="btn-recheck-images" onclick="runImageCheck()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Re-check images
+          </button>
+          <button class="btn btn-primary" id="btn-recheck-urls" onclick="runUrlCheck()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            Re-check URLs
+          </button>
+        </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="image-health-summary" id="ih-summary">
+        <div class="ih-summary-card ok" id="ih-status-card">
+          <div class="ih-status-icon" id="ih-status-icon">
+            <svg id="ih-icon-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <svg id="ih-icon-broken" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="ih-status-text">
+            <h2 id="ih-headline">Checking&hellip;</h2>
+            <p id="ih-subline">Scanning database references against files on disk.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Broken references table -->
+      <div class="admin-card" id="ih-table-card" style="display: none;">
+        <h3>Missing Files</h3>
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Title</th>
+                <th>Field</th>
+                <th>Missing File</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ih-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="image-health-summary" id="uh-summary">
+        <div class="ih-summary-card ok" id="uh-status-card">
+          <div class="ih-status-icon" id="uh-status-icon">
+            <svg id="uh-icon-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <svg id="uh-icon-broken" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="ih-status-text">
+            <h2 id="uh-headline">Checking&hellip;</h2>
+            <p id="uh-subline">Pinging every download and watch URL.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Broken URLs table -->
+      <div class="admin-card" id="uh-table-card" style="display: none;">
+        <h3>Broken URLs</h3>
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Title</th>
+                <th>Field</th>
+                <th>URL</th>
+                <th>Detail</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="uh-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Help card -->
+      <div class="admin-card">
+        <h3>What is this?</h3>
+        <p class="ih-help">
+          Every movie, series, and episode can store a download URL and a watch URL.
+          This page pings each one (one request per host, with a short timeout) and
+          reports the ones that are unreachable. A row here means visitors clicking
+          <strong>Download</strong> or <strong>Watch</strong> on the public site will hit a
+          broken or erroring link. Fix by updating the URL for that title to a working address.
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    function renderImage(health) {
+      const iconOk = document.getElementById('ih-icon-ok');
+      const iconBroken = document.getElementById('ih-icon-broken');
+      const card = document.getElementById('ih-status-card');
+      const tableCard = document.getElementById('ih-table-card');
+      const tbody = document.getElementById('ih-tbody');
+      const broken = health.broken || [];
+
+      if (broken.length === 0) {
+        iconOk.style.display = '';
+        iconBroken.style.display = 'none';
+        card.classList.remove('broken');
+        card.classList.add('ok');
+        document.getElementById('ih-headline').textContent = 'All images are healthy';
+        document.getElementById('ih-subline').textContent =
+          `Checked ${health.checked} uploaded image reference${health.checked === 1 ? '' : 's'} - every file is present on disk.`;
+        tableCard.style.display = 'none';
+      } else {
+        iconOk.style.display = 'none';
+        iconBroken.style.display = '';
+        card.classList.remove('ok');
+        card.classList.add('broken');
+        const titles = [...new Set(broken.map(b => b.title))];
+        document.getElementById('ih-headline').textContent =
+          `${broken.length} image file${broken.length === 1 ? '' : 's'} missing for ${titles.length} item${titles.length === 1 ? '' : 's'}`;
+        document.getElementById('ih-subline').textContent =
+          `Checked ${health.checked} uploaded image reference${health.checked === 1 ? '' : 's'}. Visitors see broken or placeholder images for the affected titles.`;
+        tbody.innerHTML = broken.map(b => `
+          <tr>
+            <td><span class="ih-type">${escapeHtml(b.type)}</span></td>
+            <td><strong style="color: var(--admin-white);">${escapeHtml(b.title)}</strong></td>
+            <td>${escapeHtml(b.field)}</td>
+            <td><code class="ih-path">${escapeHtml(b.path)}</code></td>
+            <td class="actions"><a href="${b.editUrl}" class="btn btn-secondary btn-sm">Fix in editor</a></td>
+          </tr>
+        `).join('');
+        tableCard.style.display = 'block';
+      }
+    }
+
+    function renderUrl(health) {
+      const iconOk = document.getElementById('uh-icon-ok');
+      const iconBroken = document.getElementById('uh-icon-broken');
+      const card = document.getElementById('uh-status-card');
+      const tableCard = document.getElementById('uh-table-card');
+      const tbody = document.getElementById('uh-tbody');
+      const broken = health.broken || [];
+
+      if (broken.length === 0) {
+        iconOk.style.display = '';
+        iconBroken.style.display = 'none';
+        card.classList.remove('broken');
+        card.classList.add('ok');
+        document.getElementById('uh-headline').textContent = 'All content URLs are reachable';
+        document.getElementById('uh-subline').textContent =
+          `Checked ${health.checked} download/watch URL${health.checked === 1 ? '' : 's'} - every link responded successfully.`;
+        tableCard.style.display = 'none';
+      } else {
+        iconOk.style.display = 'none';
+        iconBroken.style.display = '';
+        card.classList.remove('ok');
+        card.classList.add('broken');
+        const titles = [...new Set(broken.map(b => b.title))];
+        document.getElementById('uh-headline').textContent =
+          `${broken.length} URL${broken.length === 1 ? '' : 's'} unreachable for ${titles.length} item${titles.length === 1 ? '' : 's'}`;
+        document.getElementById('uh-subline').textContent =
+          `Checked ${health.checked} download/watch URL${health.checked === 1 ? '' : 's'}. Affected titles are listed below - re-save the link on that item with a working address.`;
+        tbody.innerHTML = broken.map(b => {
+          const actionHref = b.type === 'episode'
+            ? `edit-content.html?type=series&id=${b.id}`
+            : `edit-content.html?type=${b.type}&id=${b.id}`;
+          return `
+            <tr>
+              <td><span class="ih-type">${escapeHtml(b.type)}</span></td>
+              <td><strong style="color: var(--admin-white);">${escapeHtml(b.title)}</strong></td>
+              <td>${escapeHtml(b.field)}</td>
+              <td><code class="ih-path">${escapeHtml(b.url)}</code></td>
+              <td><span class="ih-detail">${escapeHtml(b.detail || 'unreachable')}</span></td>
+              <td class="actions"><a href="${actionHref}" class="btn btn-secondary btn-sm">Fix in editor</a></td>
+            </tr>
+          `;
+        }).join('');
+        tableCard.style.display = 'block';
+      }
+    }
+
+    async function runImageCheck() {
+      const btn = document.getElementById('btn-recheck-images');
+      btn.disabled = true;
+      try {
+        const health = await adminFetch('/admin/image-health');
+        renderImage(health);
+      } catch (err) {
+        document.getElementById('ih-headline').textContent = 'Image check failed';
+        document.getElementById('ih-subline').textContent = err.message || 'Could not reach the server.';
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function runUrlCheck() {
+      const btn = document.getElementById('btn-recheck-urls');
+      btn.disabled = true;
+      try {
+        const health = await adminFetch('/admin/url-health');
+        renderUrl(health);
+      } catch (err) {
+        document.getElementById('uh-headline').textContent = 'URL check failed';
+        document.getElementById('uh-subline').textContent = err.message || 'Could not reach the server.';
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      requireAuth();
+      runImageCheck().then(runUrlCheck);
+    });
+  </script>
+</body>
+</html>

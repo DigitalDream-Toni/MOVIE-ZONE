@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Series Details - MOVIE ZONE</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%23e50914'/><text y='70' x='50' text-anchor='middle' font-size='60' fill='white' font-weight='bold'>MZ</text></svg>">
+</head>
+<body>
+
+  <nav class="mz-nav">
+    <div class="mz-nav-inner">
+      <a href="index.html" class="mz-nav-logo"><span class="logo-icon">MZ</span>MOVIE ZONE</a>
+      <div class="mz-nav-links">
+        <a href="index.html">Home</a>
+        <a href="movies.html">Movies</a>
+        <a href="series.html">Series</a>
+        <a href="genres.html">Genres</a>
+      </div>
+      <div class="mz-nav-search">
+        <input type="text" placeholder="Search..." aria-label="Search">
+        <button class="search-toggle" aria-label="Toggle search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+      </div>
+      <button class="mz-menu-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <div class="mz-mobile-nav">
+    <a href="index.html">Home</a>
+    <a href="movies.html">Movies</a>
+    <a href="series.html">Series</a>
+    <a href="genres.html">Genres</a>
+    <a href="search.html">Search</a>
+  </div>
+
+  <div class="mz-detail-hero" id="detail-hero">
+    <div class="mz-detail-hero-backdrop" id="hero-backdrop"></div>
+  </div>
+
+  <div class="mz-detail-content" id="detail-content"></div>
+
+  <!-- Seasons & Episodes -->
+  <div class="mz-seasons-section" id="seasons-section">
+    <h2 class="mz-seasons-title">Seasons & Episodes</h2>
+    <div class="mz-season-tabs" id="season-tabs"></div>
+    <div class="mz-episode-list" id="episode-list"></div>
+  </div>
+
+  <!-- Reviews Section -->
+  <section class="mz-section" id="reviews-section">
+    <div class="mz-section-inner">
+      <div class="mz-row">
+        <div class="mz-section-header">
+          <h2 class="mz-section-title">User Reviews</h2>
+        </div>
+
+        <div class="mz-review-form" id="review-form" style="margin-bottom: 2rem;">
+          <div class="mz-review-rating" id="rating-stars">
+            <button type="button" class="mz-star" data-value="1" aria-label="1 star">☆</button>
+            <button type="button" class="mz-star" data-value="2" aria-label="2 stars">☆</button>
+            <button type="button" class="mz-star" data-value="3" aria-label="3 stars">☆</button>
+            <button type="button" class="mz-star" data-value="4" aria-label="4 stars">☆</button>
+            <button type="button" class="mz-star" data-value="5" aria-label="5 stars">☆</button>
+          </div>
+          <div class="mz-review-rating-label" id="rating-label">Rate this series</div>
+          <textarea class="mz-textarea" id="review-comment" placeholder="Share your thoughts about this series..." rows="3"></textarea>
+          <button class="mz-btn mz-btn-primary" id="review-submit" style="margin-top: 0.8rem;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Submit Review
+          </button>
+          <div class="mz-review-error" id="review-error" style="color: var(--mz-red); margin-top: 0.5rem; display: none;"></div>
+          <input type="hidden" id="review-user-id" value="">
+        </div>
+
+        <div class="mz-review-list" id="review-list">
+          <div style="text-align:center;padding:2rem;color:var(--mz-text-muted);" id="review-empty">No reviews yet. Be the first to review!</div>
+          <div id="review-items" style="display:none;"></div>
+        </div>
+
+        <div class="mz-review-pagination" id="review-pagination" style="display:none;margin-top:1.5rem;">
+          <button class="mz-btn mz-btn-outline mz-btn-sm" id="review-prev" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg>
+            Previous
+          </button>
+          <span class="mz-review-page-info" id="review-page-info">Page 1 of 1</span>
+          <button class="mz-btn mz-btn-outline mz-btn-sm" id="review-next" style="display:none;">
+            Next
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer (rendered by js/app.js) -->
+  <footer id="mz-footer-root"></footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    let seriesData = null;
+    let activeSeasonIndex = 0;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const seriesId = getQueryParam('id');
+      if (!seriesId) {
+        window.location.href = 'series.html';
+        return;
+      }
+
+      try {
+        seriesData = await api.get(`/series/${seriesId}`);
+        document.title = `${seriesData.title} - MOVIE ZONE`;
+
+        // Hero backdrop
+        document.getElementById('hero-backdrop').style.backgroundImage = `url('${mediaUrl(seriesData.backdrop || seriesData.poster)}')`;
+
+        const totalEpisodes = seriesData.seasons?.reduce((a, s) => a + (s.episodes?.length || 0), 0) || 0;
+
+        // Detail content
+        document.getElementById('detail-content').innerHTML = `
+          <div class="mz-detail-poster">
+            <img src="${escapeHtml(mediaUrl(seriesData.poster))}" alt="${escapeHtml(seriesData.title)}" onerror="this.src='https://picsum.photos/seed/default/400/600'">
+          </div>
+          <div class="mz-detail-info">
+            <h1 class="mz-detail-title">${escapeHtml(seriesData.title)}</h1>
+            <div class="mz-detail-meta">
+              <span class="year-tag">${seriesData.year || 'N/A'}</span>
+              ${seriesData.genre ? `<span class="genre-tag">${escapeHtml(seriesData.genre)}</span>` : ''}
+              <span class="mz-tag mz-tag-red">Series</span>
+              <span>${seriesData.seasons?.length || 0} Season${(seriesData.seasons?.length || 0) !== 1 ? 's' : ''}</span>
+              <span>${totalEpisodes} Episode${totalEpisodes !== 1 ? 's' : ''}</span>
+            </div>
+            <p class="mz-detail-desc">${escapeHtml(seriesData.description || 'No description available.')}</p>
+            <a href="series.html" class="mz-btn mz-btn-outline">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              Back to Series
+            </a>
+          </div>
+        `;
+
+        // Season tabs
+        if (seriesData.seasons && seriesData.seasons.length > 0) {
+          renderSeasonTabs();
+          renderEpisodes(0);
+        } else {
+          document.getElementById('seasons-section').innerHTML = '<p style="color: var(--mz-text-muted); text-align: center; padding: 2rem;">No seasons available.</p>';
+        }
+      } catch (err) {
+        console.error('Failed to load series:', err);
+        document.getElementById('detail-content').innerHTML = `
+          <div style="text-align: center; padding: 4rem; grid-column: 1 / -1;">
+            <h2 style="color: var(--mz-text-muted);">Series not found</h2>
+            <a href="series.html" class="mz-btn mz-btn-primary" style="margin-top: 1rem;">Browse Series</a>
+          </div>
+        `;
+        document.getElementById('seasons-section').style.display = 'none';
+      }
+    });
+
+    function renderSeasonTabs() {
+      const tabs = document.getElementById('season-tabs');
+      tabs.innerHTML = '';
+      seriesData.seasons.forEach((season, i) => {
+        const tab = document.createElement('button');
+        tab.className = `mz-season-tab ${i === 0 ? 'active' : ''}`;
+        tab.textContent = season.title || `Season ${season.season_number}`;
+        tab.onclick = () => {
+          activeSeasonIndex = i;
+          document.querySelectorAll('.mz-season-tab').forEach((t, idx) => {
+            t.classList.toggle('active', idx === i);
+          });
+          renderEpisodes(i);
+        };
+        tabs.appendChild(tab);
+      });
+    }
+
+    function renderEpisodes(seasonIndex) {
+      const list = document.getElementById('episode-list');
+      const season = seriesData.seasons[seasonIndex];
+      list.innerHTML = '';
+
+      if (!season.episodes || season.episodes.length === 0) {
+        list.innerHTML = '<p style="color: var(--mz-text-muted); text-align: center; padding: 1.5rem;">No episodes available for this season.</p>';
+        return;
+      }
+
+      season.episodes.forEach(ep => {
+        const item = document.createElement('div');
+        item.className = 'mz-episode-item';
+        item.innerHTML = `
+          <div class="mz-episode-number">${String(ep.episode_number).padStart(2, '0')}</div>
+          <div class="mz-episode-info">
+            <div class="mz-episode-title">${escapeHtml(ep.title)}</div>
+            ${ep.description ? `<div class="mz-episode-desc">${escapeHtml(ep.description)}</div>` : ''}
+          </div>
+          <div class="mz-episode-actions">
+            ${ep.watch_url ? `
+              <a href="${ep.watch_url}" target="_blank" class="mz-btn mz-btn-primary mz-btn-sm" onclick="event.stopPropagation()">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M8 5v14l11-7z"/></svg>
+                Watch
+              </a>
+            ` : ''}
+            ${ep.download_url ? `
+              <a href="${ep.download_url}" target="_blank" class="mz-btn mz-btn-secondary mz-btn-sm" onclick="event.stopPropagation()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Download
+              </a>
+            ` : ''}
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    // --- Reviews ---
+    const reviewUserId = localStorage.getItem('mz-review-user-id') || (() => {
+      const id = 'anon_' + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem('mz-review-user-id', id);
+      return id;
+    })();
+    document.getElementById('review-user-id').value = reviewUserId;
+
+    let reviewPage = 1;
+    let reviewTotal = 0;
+    let reviewTotalPages = 1;
+
+    const stars = document.querySelectorAll('#rating-stars .mz-star');
+    let selectedRating = 0;
+
+    function renderStars(rating) {
+      stars.forEach(s => {
+        const val = parseInt(s.dataset.value);
+        s.textContent = val <= rating ? '★' : '☆';
+        s.classList.toggle('selected', val <= rating);
+      });
+    }
+    renderStars(0);
+
+    stars.forEach(star => {
+      star.addEventListener('click', () => {
+        selectedRating = parseInt(star.dataset.value);
+        renderStars(selectedRating);
+        document.getElementById('rating-label').textContent =
+          `${selectedRating} star${selectedRating > 1 ? 's' : ''} - Thanks for your rating!`;
+      });
+      star.addEventListener('mouseenter', () => {
+        renderStars(parseInt(star.dataset.value));
+      });
+      star.addEventListener('mouseleave', () => renderStars(selectedRating));
+    });
+
+    async function loadReviews() {
+      try {
+        const data = await api.get(`/reviews/series/${seriesId}?page=${reviewPage}&per_page=6`);
+        const items = document.getElementById('review-items');
+        const empty = document.getElementById('review-empty');
+        reviewTotal = data.pagination.total;
+        reviewTotalPages = data.pagination.total_pages;
+
+        if (data.reviews.length === 0 && reviewPage === 1) {
+          empty.style.display = 'block';
+          items.style.display = 'none';
+        } else {
+          empty.style.display = 'none';
+          items.style.display = 'block';
+          if (reviewPage === 1) items.innerHTML = '';
+          data.reviews.forEach(r => {
+            const div = document.createElement('div');
+            div.className = 'mz-review-item';
+            const date = r.created_at ? new Date(r.created_at).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : 'Recently';
+            div.innerHTML = `
+              <div class="mz-review-header">
+                <div class="mz-review-user">User ${r.user_id ? r.user_id.slice(-6) : 'Anonymous'}</div>
+                <div class="mz-review-stars">${'★'.repeat(r.rating || 0)}${'☆'.repeat((5 - (r.rating || 0)))}</div>
+              </div>
+              ${r.comment ? `<p class="mz-review-comment">${escapeHtml(r.comment)}</p>` : ''}
+              <div class="mz-review-date">${date}</div>
+            `;
+            items.appendChild(div);
+          });
+        }
+        updateReviewPagination();
+      } catch (err) {
+        console.error('Failed to load reviews:', err);
+      }
+    }
+
+    function updateReviewPagination() {
+      const prev = document.getElementById('review-prev');
+      const next = document.getElementById('review-next');
+      const info = document.getElementById('review-page-info');
+      const pag = document.getElementById('review-pagination');
+      if (reviewTotalPages <= 1) {
+        pag.style.display = 'none';
+      } else {
+        pag.style.display = 'flex';
+        prev.style.display = reviewPage > 1 ? 'inline-flex' : 'none';
+        next.style.display = reviewPage < reviewTotalPages ? 'inline-flex' : 'none';
+        info.textContent = `Page ${reviewPage} of ${reviewTotalPages}`;
+      }
+    }
+
+    document.getElementById('review-prev').addEventListener('click', () => {
+      if (reviewPage > 1) { reviewPage--; loadReviews(); }
+    });
+    document.getElementById('review-next').addEventListener('click', () => {
+      if (reviewPage < reviewTotalPages) { reviewPage++; loadReviews(); }
+    });
+
+    document.getElementById('review-submit').addEventListener('click', async () => {
+      const comment = document.getElementById('review-comment').value.trim();
+      const errorEl = document.getElementById('review-error');
+
+      if (selectedRating === 0) {
+        errorEl.textContent = 'Please select a star rating.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      errorEl.style.display = 'none';
+
+      try {
+        await api.post('/reviews', {
+          series_id: seriesId,
+          rating: selectedRating,
+          comment: comment || '',
+          user_id: reviewUserId,
+        });
+        document.getElementById('review-comment').value = '';
+        selectedRating = 0;
+        renderStars(0);
+        document.getElementById('rating-label').textContent = 'Rate this series';
+        showToast('Review submitted!');
+        reviewPage = 1;
+        loadReviews();
+      } catch (err) {
+        errorEl.textContent = err.message || 'Failed to submit review.';
+        errorEl.style.display = 'block';
+      }
+    });
+
+    loadReviews();
+  </script>
+</body>
+</html>

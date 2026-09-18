@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - MOVIE ZONE Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%23e50914'/><text y='70' x='50' text-anchor='middle' font-size='60' fill='white' font-weight='bold'>MZ</text></svg>">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">
+        <h2>MZ <span class="badge">WELCOME</span></h2>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+        <a href="add-content.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          Add Content
+        </a>
+        <div class="nav-divider"></div>
+        <a href="manage-movies.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+          Movies
+        </a>
+        <a href="manage-series.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>
+          Series
+        </a>
+        <a href="image-health.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Image Health
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="/frontend/index.html" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          View Public Site
+        </a>
+        <a href="#" onclick="logout(); return false;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </a>
+      </div>
+    </aside>
+
+    <div class="sidebar-overlay"></div>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="admin-header">
+        <div class="header-left">
+          <button class="sidebar-toggle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <h1>Dashboard</h1>
+        </div>
+        <div class="admin-header-actions">
+          <div class="header-actions-group">
+            <span style="font-size: 0.85rem; color: var(--admin-text-muted);">Welcome, <strong id="admin-username">Admin</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+          </div>
+          <div class="stat-info">
+            <h3 id="stat-movies">-</h3>
+            <p>Total Movies</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>
+          </div>
+          <div class="stat-info">
+            <h3 id="stat-series">-</h3>
+            <p>Total Series</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          </div>
+          <div class="stat-info">
+            <h3 id="stat-episodes">-</h3>
+            <p>Total Episodes</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon gold">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          </div>
+          <div class="stat-info">
+            <h3 id="stat-genres">-</h3>
+            <p>Total Genres</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Content -->
+      <div class="admin-card">
+        <h3>Recently Added Movies</h3>
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Poster</th>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Year</th>
+                <th>Date Added</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recent-movies"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Recently Added Series</h3>
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Poster</th>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Year</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recent-series"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const data = await adminFetch('/admin/stats');
+
+        document.getElementById('stat-movies').textContent = data.stats.movieCount;
+        document.getElementById('stat-series').textContent = data.stats.seriesCount;
+        document.getElementById('stat-episodes').textContent = data.stats.episodeCount;
+        document.getElementById('stat-genres').textContent = data.stats.genreCount;
+
+        // Recent movies
+        const moviesTbody = document.getElementById('recent-movies');
+        if (data.recentMovies.length === 0) {
+          moviesTbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--admin-text-muted); padding: 2rem;">No movies yet. <a href="add-content.html" style="color: var(--admin-red);">Add your first movie</a></td></tr>';
+        } else {
+          moviesTbody.innerHTML = data.recentMovies.map(m => `
+            <tr>
+              <td><img src="${escapeHtml(mediaUrl(m.poster))}" class="poster-thumb" alt="${escapeHtml(m.title)}" onerror="this.src='https://picsum.photos/seed/default/90/130'"></td>
+              <td><strong style="color: var(--admin-white);">${escapeHtml(m.title)}</strong></td>
+              <td>${escapeHtml(m.genre || '-')}</td>
+              <td>${m.year || '-'}</td>
+              <td>${formatDate(m.created_at)}</td>
+              <td class="actions">
+                <a href="edit-content.html?type=movie&id=${m.id}" class="btn btn-secondary btn-sm">Edit</a>
+              </td>
+            </tr>
+          `).join('');
+        }
+
+        // Recent series
+        const seriesTbody = document.getElementById('recent-series');
+        if (data.recentSeries.length === 0) {
+          seriesTbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--admin-text-muted); padding: 2rem;">No series yet. <a href="add-content.html" style="color: var(--admin-red);">Add your first series</a></td></tr>';
+        } else {
+          seriesTbody.innerHTML = data.recentSeries.map(s => `
+            <tr>
+              <td><img src="${escapeHtml(mediaUrl(s.poster))}" class="poster-thumb" alt="${escapeHtml(s.title)}" onerror="this.src='https://picsum.photos/seed/default/90/130'"></td>
+              <td><strong style="color: var(--admin-white);">${escapeHtml(s.title)}</strong></td>
+              <td>${escapeHtml(s.genre || '-')}</td>
+              <td>${s.year || '-'}</td>
+              <td class="actions">
+                <a href="edit-content.html?type=series&id=${s.id}" class="btn btn-secondary btn-sm">Edit</a>
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        console.error('Failed to load dashboard:', err);
+      }
+    });
+  </script>
+</body>
+</html>

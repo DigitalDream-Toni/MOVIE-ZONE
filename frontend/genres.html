@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Genres - MOVIE ZONE</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%23e50914'/><text y='70' x='50' text-anchor='middle' font-size='60' fill='white' font-weight='bold'>MZ</text></svg>">
+</head>
+<body>
+
+  <nav class="mz-nav">
+    <div class="mz-nav-inner">
+      <a href="index.html" class="mz-nav-logo"><span class="logo-icon">MZ</span>MOVIE ZONE</a>
+      <div class="mz-nav-links">
+        <a href="index.html">Home</a>
+        <a href="movies.html">Movies</a>
+        <a href="series.html">Series</a>
+        <a href="genres.html" class="active">Genres</a>
+      </div>
+      <div class="mz-nav-search">
+        <input type="text" placeholder="Search..." aria-label="Search">
+        <button class="search-toggle" aria-label="Toggle search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+      </div>
+      <button class="mz-menu-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <div class="mz-mobile-nav">
+    <a href="index.html">Home</a>
+    <a href="movies.html">Movies</a>
+    <a href="series.html">Series</a>
+    <a href="genres.html">Genres</a>
+    <a href="search.html">Search</a>
+  </div>
+
+  <div class="mz-page-header">
+    <h1 class="mz-page-title">Browse by Genre</h1>
+  </div>
+
+  <section class="mz-section">
+    <div class="mz-section-inner">
+      <div class="mz-filter-bar" id="genre-grid" style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;"></div>
+
+      <div id="genre-results">
+        <p class="mz-search-results-count" id="results-count"></p>
+        <div class="mz-grid" id="results-grid"></div>
+      </div>
+
+      <div class="mz-empty" id="empty-state" style="display: none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <h3>Select a genre</h3>
+        <p>Choose a genre above to browse movies and series.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer (rendered by js/app.js) -->
+  <footer id="mz-footer-root"></footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    let allMovies = [];
+    let allSeries = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const [moviesData, seriesData] = await Promise.all([
+          api.get('/movies?per_page=200'),
+          api.get('/series?per_page=200')
+        ]);
+        allMovies = moviesData.movies || [];
+        allSeries = seriesData.series || [];
+
+        const genres = [...new Set([
+          ...allMovies.map(m => m.genre),
+          ...allSeries.map(s => s.genre)
+        ])].filter(Boolean).sort();
+
+        const grid = document.getElementById('genre-grid');
+        genres.forEach(genre => {
+          const count = allMovies.filter(m => m.genre === genre).length +
+                       allSeries.filter(s => s.genre === genre).length;
+          const btn = document.createElement('button');
+          btn.className = 'mz-filter-btn';
+          btn.innerHTML = `${genre} <span style="opacity:0.5; margin-left: 4px;">(${count})</span>`;
+          btn.onclick = () => selectGenre(genre);
+          grid.appendChild(btn);
+        });
+
+        // Check URL param
+        const urlGenre = getQueryParam('genre');
+        if (urlGenre && genres.includes(urlGenre)) {
+          selectGenre(urlGenre);
+        } else {
+          document.getElementById('empty-state').style.display = 'block';
+          document.getElementById('genre-results').style.display = 'none';
+        }
+      } catch (err) {
+        console.error('Failed to load genres:', err);
+      }
+    });
+
+    function selectGenre(genre) {
+      // Update buttons
+      document.querySelectorAll('.mz-filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.replace(/\(\d+\)/, '').trim() === genre);
+      });
+
+      const movies = allMovies.filter(m => m.genre === genre);
+      const series = allSeries.filter(s => s.genre === genre);
+
+      document.getElementById('empty-state').style.display = 'none';
+      document.getElementById('genre-results').style.display = 'block';
+
+      const grid = document.getElementById('results-grid');
+      const count = document.getElementById('results-count');
+      grid.innerHTML = '';
+
+      const total = movies.length + series.length;
+      count.textContent = `${total} result${total !== 1 ? 's' : ''} in ${genre}`;
+
+      series.forEach(s => grid.appendChild(createSeriesCard(s)));
+      movies.forEach(m => grid.appendChild(createMovieCard(m)));
+
+      if (total === 0) {
+        document.getElementById('empty-state').style.display = 'block';
+        document.getElementById('genre-results').style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>

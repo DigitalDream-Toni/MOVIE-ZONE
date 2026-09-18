@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Backend
+backend/server.log
+backend/token.txt
+backend/headers.txt
+backend/db/moviezone.db-journal
+backend/db/moviezone.db-wal
+backend/db/moviezone.db-shm
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Freebuff
+.freebuff/
+
+# Env / Secrets
+.env
+.env.*
+
+# Node (if used later)
+node_modules/

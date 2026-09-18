@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Content - MOVIE ZONE Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%23e50914'/><text y='70' x='50' text-anchor='middle' font-size='60' fill='white' font-weight='bold'>MZ</text></svg>">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo"><h2>MZ <span class="badge">WELCOME</span></h2></div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+        <a href="add-content.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add Content</a>
+        <div class="nav-divider"></div>
+        <a href="manage-movies.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>Movies</a>
+        <a href="manage-series.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>Series</a>
+        <a href="image-health.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Image Health</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="/frontend/index.html" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>View Public Site</a>
+        <a href="#" onclick="logout(); return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout</a>
+      </div>
+    </aside>
+    <div class="sidebar-overlay"></div>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <div class="header-left">
+          <button class="sidebar-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+          <h1 id="page-title">Edit Content</h1>
+        </div>
+      </div>
+
+      <!-- Movie Edit Form -->
+      <div id="movie-edit-form" style="display:none;">
+        <div class="admin-card centered">
+          <h3>Edit Movie</h3>
+          <div class="form-row">
+            <div class="form-group"><label>Movie Title *</label><input type="text" id="m-title" required></div>
+            <div class="form-group"><label>Release Year</label><input type="number" id="m-year" min="1900" max="2030"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Genre</label>
+              <select id="m-genre">
+                <option value="">Select genre</option>
+                <option value="Action">Action</option>
+                <option value="Adventure">Adventure</option>
+                <option value="Anime">Anime</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Crime">Crime</option>
+                <option value="Documentary">Documentary</option>
+                <option value="Drama">Drama</option>
+                <option value="Horror">Horror</option>
+                <option value="Nigerian">Nigerian</option>
+                <option value="Romance">Romance</option>
+                <option value="Sci-Fi">Sci-Fi</option>
+                <option value="Thriller">Thriller</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Featured</label>
+              <select id="m-featured"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+          </div>
+          <div class="form-group"><label>Description</label><textarea id="m-description"></textarea></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Poster Image</label>
+              <div class="upload-box" id="m-poster-upload" data-target="m-poster">
+                <div class="upload-preview" id="m-poster-preview"></div>
+                <div class="upload-placeholder">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                  <p>Click or drag to upload</p>
+                  <span>JPEG, PNG, WebP - Max 10MB</span>
+                </div>
+                <input type="file" accept="image/*" class="upload-input">
+              </div>
+              <input type="url" id="m-poster" class="upload-url-input" placeholder="Or paste image URL">
+            </div>
+            <div class="form-group">
+              <label>Backdrop Image</label>
+              <div class="upload-box" id="m-backdrop-upload" data-target="m-backdrop">
+                <div class="upload-preview" id="m-backdrop-preview"></div>
+                <div class="upload-placeholder">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                  <p>Click or drag to upload</p>
+                  <span>JPEG, PNG, WebP - Max 10MB</span>
+                </div>
+                <input type="file" accept="image/*" class="upload-input">
+              </div>
+              <input type="url" id="m-backdrop" class="upload-url-input" placeholder="Or paste image URL">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Download URL</label><input type="url" id="m-download"></div>
+            <div class="form-group"><label>Watch/Preview URL</label><input type="url" id="m-watch"></div>
+          </div>
+          <div class="header-actions-group" style="margin-top:1.5rem;">
+            <button class="btn btn-primary" onclick="updateMovie()">Save Changes</button>
+            <a href="manage-movies.html" class="btn btn-secondary">Cancel</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Series Edit Form -->
+      <div id="series-edit-form" style="display:none;">
+        <div class="admin-card centered">
+          <h3>Edit Series</h3>
+          <div class="form-row">
+            <div class="form-group"><label>Series Title *</label><input type="text" id="s-title" required></div>
+            <div class="form-group"><label>Release Year</label><input type="number" id="s-year" min="1900" max="2030"></div>
+          </div>
+          <div class="form-group"><label>Genre</label>
+            <select id="s-genre">
+              <option value="">Select genre</option>
+              <option value="Action">Action</option>
+              <option value="Adventure">Adventure</option>
+              <option value="Anime">Anime</option>
+              <option value="Comedy">Comedy</option>
+              <option value="Crime">Crime</option>
+              <option value="Drama">Drama</option>
+              <option value="Horror">Horror</option>
+              <option value="Nigerian">Nigerian</option>
+              <option value="Romance">Romance</option>
+              <option value="Sci-Fi">Sci-Fi</option>
+              <option value="Thriller">Thriller</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Description</label><textarea id="s-description"></textarea></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Poster Image</label>
+              <div class="upload-box" id="s-poster-upload" data-target="s-poster">
+                <div class="upload-preview" id="s-poster-preview"></div>
+                <div class="upload-placeholder">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                  <p>Click or drag to upload</p>
+                  <span>JPEG, PNG, WebP - Max 10MB</span>
+                </div>
+                <input type="file" accept="image/*" class="upload-input">
+              </div>
+              <input type="url" id="s-poster" class="upload-url-input" placeholder="Or paste image URL">
+            </div>
+            <div class="form-group">
+              <label>Backdrop Image</label>
+              <div class="upload-box" id="s-backdrop-upload" data-target="s-backdrop">
+                <div class="upload-preview" id="s-backdrop-preview"></div>
+                <div class="upload-placeholder">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                  <p>Click or drag to upload</p>
+                  <span>JPEG, PNG, WebP - Max 10MB</span>
+                </div>
+                <input type="file" accept="image/*" class="upload-input">
+              </div>
+              <input type="url" id="s-backdrop" class="upload-url-input" placeholder="Or paste image URL">
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-card centered">
+          <h3>Seasons & Episodes</h3>
+          <div id="seasons-container"></div>
+          <button class="add-btn" onclick="addSeason()" style="margin-top:1rem;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Add Season
+          </button>
+        </div>
+        <div class="header-actions-group" style="margin-top:1.5rem;">
+            <button class="btn btn-primary" onclick="updateSeries()">Save Changes</button>
+            <a href="manage-series.html" class="btn btn-secondary">Cancel</a>
+          </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    let contentType = null;
+    let contentId = null;
+    let seasonCount = 0;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      contentType = getQueryParam('type');
+      contentId = getQueryParam('id');
+
+      if (!contentType || !contentId) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      if (contentType === 'movie') {
+        document.getElementById('movie-edit-form').style.display = 'block';
+        document.getElementById('page-title').textContent = 'Edit Movie';
+        try {
+          const movie = await adminFetch(`/movies/${contentId}`);
+          document.getElementById('m-title').value = movie.title || '';
+          document.getElementById('m-year').value = movie.year || '';
+          document.getElementById('m-genre').value = movie.genre || '';
+          document.getElementById('m-description').value = movie.description || '';
+          document.getElementById('m-poster').value = movie.poster || '';
+          document.getElementById('m-backdrop').value = movie.backdrop || '';
+          document.getElementById('m-download').value = movie.download_url || '';
+          document.getElementById('m-watch').value = movie.watch_url || '';
+          document.getElementById('m-featured').value = movie.is_featured ? '1' : '0';
+          window.syncUploadPreviews && window.syncUploadPreviews();
+        } catch (err) {
+          showToast('Failed to load movie.', 'error');
+        }
+      } else if (contentType === 'series') {
+        document.getElementById('series-edit-form').style.display = 'block';
+        document.getElementById('page-title').textContent = 'Edit Series';
+        try {
+          const series = await adminFetch(`/series/${contentId}`);
+          document.getElementById('s-title').value = series.title || '';
+          document.getElementById('s-year').value = series.year || '';
+          document.getElementById('s-genre').value = series.genre || '';
+          document.getElementById('s-description').value = series.description || '';
+          document.getElementById('s-poster').value = series.poster || '';
+          document.getElementById('s-backdrop').value = series.backdrop || '';
+          window.syncUploadPreviews && window.syncUploadPreviews();
+
+          // Load seasons/episodes
+          if (series.seasons) {
+            series.seasons.forEach(season => {
+              addSeason();
+              const seasonBlock = document.querySelector(`#season-${seasonCount}`);
+              // Set episodes
+              const container = document.getElementById(`episodes-${seasonCount}`);
+              container.innerHTML = '';
+              if (season.episodes) {
+                season.episodes.forEach(ep => {
+                  addEpisode(seasonCount);
+                  const lastEp = container.lastElementChild;
+                  lastEp.querySelector('[data-field="title"]').value = ep.title || '';
+                  lastEp.querySelector('[data-field="description"]').value = ep.description || '';
+                  lastEp.querySelector('[data-field="download_url"]').value = ep.download_url || '';
+                  lastEp.querySelector('[data-field="watch_url"]').value = ep.watch_url || '';
+                });
+              }
+            });
+          }
+        } catch (err) {
+          showToast('Failed to load series.', 'error');
+        }
+      } else {
+        window.location.href = 'dashboard.html';
+      }
+    });
+
+    // --- Movie Update ---
+    async function updateMovie() {
+      const title = document.getElementById('m-title').value.trim();
+      if (!title) {
+        showToast('Title is required.', 'error');
+        return;
+      }
+
+      try {
+        await adminFetch(`/movies/${contentId}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            title,
+            year: parseInt(document.getElementById('m-year').value) || null,
+            genre: document.getElementById('m-genre').value,
+            description: document.getElementById('m-description').value,
+            poster: document.getElementById('m-poster').value,
+            backdrop: document.getElementById('m-backdrop').value,
+            download_url: document.getElementById('m-download').value,
+            watch_url: document.getElementById('m-watch').value || null,
+            is_featured: document.getElementById('m-featured').value === '1'
+          })
+        });
+        showToast('Movie updated successfully!');
+        setTimeout(() => window.location.href = 'manage-movies.html', 1500);
+      } catch (err) {
+        showToast(err.message || 'Failed to update movie.', 'error');
+      }
+    }
+
+    // --- Season/Episode Builder ---
+    function addSeason() {
+      seasonCount++;
+      const container = document.getElementById('seasons-container');
+      const seasonBlock = document.createElement('div');
+      seasonBlock.className = 'season-block';
+      seasonBlock.id = `season-${seasonCount}`;
+      seasonBlock.innerHTML = `
+        <div class="season-header" onclick="toggleSeason(${seasonCount})">
+          <h4>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            Season ${seasonCount}
+          </h4>
+          <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); removeSeason(${seasonCount})">Remove</button>
+        </div>
+        <div class="season-body" id="season-body-${seasonCount}">
+          <div class="episodes-container" id="episodes-${seasonCount}"></div>
+          <button class="add-btn" onclick="addEpisode(${seasonCount})" style="margin-top:0.8rem;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Add Episode
+          </button>
+        </div>
+      `;
+      container.appendChild(seasonBlock);
+      addEpisode(seasonCount);
+    }
+
+    function toggleSeason(num) {
+      document.querySelector(`#season-${num} .season-header`).classList.toggle('collapsed');
+      document.getElementById(`season-body-${num}`).classList.toggle('collapsed');
+    }
+
+    function removeSeason(num) {
+      document.getElementById(`season-${num}`)?.remove();
+    }
+
+    function addEpisode(seasonNum) {
+      const container = document.getElementById(`episodes-${seasonNum}`);
+      const episodeNum = container.children.length + 1;
+      const epBlock = document.createElement('div');
+      epBlock.className = 'episode-block';
+      epBlock.innerHTML = `
+        <div class="episode-header">
+          <h5>Episode ${episodeNum}</h5>
+          <button class="remove-btn" onclick="this.closest('.episode-block').remove(); renumberEpisodes(${seasonNum});" title="Remove">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="form-group"><label>Episode Title</label><input type="text" data-field="title"></div>
+        <div class="form-group"><label>Description</label><textarea data-field="description" style="min-height:60px;"></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label>Download URL</label><input type="url" data-field="download_url"></div>
+          <div class="form-group"><label>Watch URL</label><input type="url" data-field="watch_url"></div>
+        </div>
+      `;
+      container.appendChild(epBlock);
+    }
+
+    function renumberEpisodes(seasonNum) {
+      const container = document.getElementById(`episodes-${seasonNum}`);
+      container.querySelectorAll('.episode-block').forEach((ep, i) => {
+        ep.querySelector('h5').textContent = `Episode ${i + 1}`;
+      });
+    }
+
+    // --- Series Update ---
+    async function updateSeries() {
+      const title = document.getElementById('s-title').value.trim();
+      if (!title) {
+        showToast('Title is required.', 'error');
+        return;
+      }
+
+      const seasons = [];
+      document.querySelectorAll('.season-block').forEach((block, i) => {
+        const episodes = [];
+        block.querySelectorAll('.episode-block').forEach((epBlock, j) => {
+          episodes.push({
+            episode_number: j + 1,
+            title: epBlock.querySelector('[data-field="title"]').value || `Episode ${j + 1}`,
+            description: epBlock.querySelector('[data-field="description"]').value,
+            download_url: epBlock.querySelector('[data-field="download_url"]').value,
+            watch_url: epBlock.querySelector('[data-field="watch_url"]').value || null
+          });
+        });
+        seasons.push({ season_number: i + 1, title: `Season ${i + 1}`, episodes });
+      });
+
+      try {
+        await adminFetch(`/series/${contentId}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            title,
+            year: parseInt(document.getElementById('s-year').value) || null,
+            genre: document.getElementById('s-genre').value,
+            description: document.getElementById('s-description').value,
+            poster: document.getElementById('s-poster').value,
+            backdrop: document.getElementById('s-backdrop').value,
+            seasons
+          })
+        });
+        showToast('Series updated successfully!');
+        setTimeout(() => window.location.href = 'manage-series.html', 1500);
+      } catch (err) {
+        showToast(err.message || 'Failed to update series.', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Series - MOVIE ZONE Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%23e50914'/><text y='70' x='50' text-anchor='middle' font-size='60' fill='white' font-weight='bold'>MZ</text></svg>">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo"><h2>MZ <span class="badge">WELCOME</span></h2></div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+        <a href="add-content.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add Content</a>
+        <div class="nav-divider"></div>
+        <a href="manage-movies.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>Movies</a>
+        <a href="manage-series.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>Series</a>
+        <a href="image-health.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Image Health</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="/frontend/index.html" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>View Public Site</a>
+        <a href="#" onclick="logout(); return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout</a>
+      </div>
+    </aside>
+    <div class="sidebar-overlay"></div>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <div class="header-left">
+          <button class="sidebar-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+          <h1>Series</h1>
+        </div>
+        <div class="admin-header-actions">
+          <div class="header-actions-group">
+            <a href="add-content.html" class="btn btn-primary btn-sm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Series
+            </a>
+          </div>
+          <div class="admin-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="search-input" placeholder="Search series..." oninput="filterSeries()">
+          </div>
+        </div>
+        <div class="admin-filter-bar" id="series-filters"></div>
+        <div class="admin-active-filters" id="series-active-filters"></div>
+      </div>
+
+      <div class="admin-table-wrapper">
+        <div class="table-responsive">              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Poster</th>
+                    <th>Title</th>
+                    <th>Genre</th>
+                    <th>Seasons</th>
+                    <th>Episodes</th>
+                    <th>Featured</th>
+                    <th>Actions</th>
+                    <th class="hide-mobile-col">Year</th>
+                    <th class="hide-mobile-col">Date Added</th>
+                  </tr>
+                </thead>
+                <tbody id="series-tbody"></tbody>
+              </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    let allSeries = [];
+    let activeSeriesFilters = {};
+
+    const SERIES_GENRES = ['Action','Adventure','Anime','Comedy','Crime','Documentary','Drama','Horror','Nigerian','Romance','Sci-Fi','Thriller'];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadSeriesFilters();
+    });
+
+    async function loadSeriesFilters() {
+      const filtersEl = document.getElementById('series-filters');
+      filtersEl.innerHTML = '';
+
+      const genreBtn = document.createElement('button');
+      genreBtn.className = 'admin-filter-chip';
+      genreBtn.textContent = 'Genre';
+      genreBtn.onclick = () => openSeriesFilterModal('genre');
+      filtersEl.appendChild(genreBtn);
+
+      const yearBtn = document.createElement('button');
+      yearBtn.className = 'admin-filter-chip';
+      yearBtn.textContent = 'Year';
+      yearBtn.onclick = () => openSeriesFilterModal('year');
+      filtersEl.appendChild(yearBtn);
+
+      const featuredBtn = document.createElement('button');
+      featuredBtn.className = 'admin-filter-chip';
+      featuredBtn.textContent = 'Featured';
+      featuredBtn.onclick = () => openSeriesFilterModal('featured');
+      filtersEl.appendChild(featuredBtn);
+
+      await applyActiveSeriesFilters();
+    }
+
+    function openSeriesFilterModal(kind) {
+      const existing = document.getElementById('series-filter-modal');
+      if (existing) existing.remove();
+
+      const modal = document.createElement('div');
+      modal.className = 'admin-modal-overlay';
+      modal.id = 'series-filter-modal';
+
+      let bodyHtml = '';
+      if (kind === 'genre') {
+        const options = SERIES_GENRES.map(g =>
+          `<option value="${g}" ${activeSeriesFilters.genre === g ? 'selected' : ''}>${g}</option>`
+        ).join('');
+        bodyHtml = `
+          <h3>Filter by Genre</h3>
+          <p>Choose a genre to narrow the series list.</p>
+          <div class="form-group">
+            <label>Genre</label>
+            <select id="series-filter-genre">
+              <option value="">All genres</option>
+              ${options}
+            </select>
+          </div>
+        `;
+      } else if (kind === 'year') {
+        bodyHtml = `
+          <h3>Filter by Year</h3>
+          <p>Filter by a specific year or a year range.</p>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Specific year</label>
+              <input type="number" id="series-filter-year" value="${activeSeriesFilters.year || ''}" placeholder="e.g. 2024" min="1900" max="2030">
+            </div>
+            <div class="form-group">
+              <label>From year</label>
+              <input type="number" id="series-filter-year-min" value="${activeSeriesFilters.year_min || ''}" placeholder="From" min="1900" max="2030">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>To year</label>
+              <input type="number" id="series-filter-year-max" value="${activeSeriesFilters.year_max || ''}" placeholder="To" min="1900" max="2030">
+            </div>
+          </div>
+        `;
+      } else {
+        const featVal = activeSeriesFilters.featured;
+        bodyHtml = `
+          <h3>Filter by Featured</h3>
+          <p>Show all series, featured only, or non-featured only.</p>
+          <div class="form-group">
+            <label>Featured status</label>
+            <select id="series-filter-featured">
+              <option value="">All series</option>
+              <option value="true" ${featVal === true ? 'selected' : ''}>Featured only</option>
+              <option value="false" ${featVal === false ? 'selected' : ''}>Non-featured only</option>
+            </select>
+          </div>
+        `;
+      }
+
+      modal.innerHTML = `
+        <div class="admin-modal">
+          ${bodyHtml}
+          <div class="modal-actions" style="margin-top:1.2rem;">
+            <button class="btn btn-secondary btn-sm modal-cancel">Cancel</button>
+            <button class="btn btn-primary btn-sm modal-apply">Apply</button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+      requestAnimationFrame(() => modal.classList.add('active'));
+
+      modal.querySelector('.modal-cancel').addEventListener('click', () => {
+        modal.classList.remove('active');
+        setTimeout(() => modal.remove(), 300);
+      });
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+          setTimeout(() => modal.remove(), 300);
+        }
+      });
+
+      modal.querySelector('.modal-apply').addEventListener('click', () => {
+        if (kind === 'genre') {
+          activeSeriesFilters.genre = modal.querySelector('#series-filter-genre').value || null;
+        } else if (kind === 'year') {
+          const y = parseInt(modal.querySelector('#series-filter-year').value);
+          const yMin = parseInt(modal.querySelector('#series-filter-year-min').value);
+          const yMax = parseInt(modal.querySelector('#series-filter-year-max').value);
+          activeSeriesFilters.year = isNaN(y) ? null : y;
+          activeSeriesFilters.year_min = isNaN(yMin) ? null : yMin;
+          activeSeriesFilters.year_max = isNaN(yMax) ? null : yMax;
+        } else {
+          const val = modal.querySelector('#series-filter-featured').value;
+          activeSeriesFilters.featured = val === 'true' ? true : val === 'false' ? false : null;
+        }
+        modal.classList.remove('active');
+        setTimeout(() => modal.remove(), 300);
+        applyActiveSeriesFilters();
+      });
+    }
+
+    function clearActiveSeriesFilters() {
+      activeSeriesFilters = {};
+      applyActiveSeriesFilters();
+    }
+
+    async function applyActiveSeriesFilters() {
+      const parts = [];
+      if (activeSeriesFilters.genre) parts.push('genre=' + encodeURIComponent(activeSeriesFilters.genre));
+      if (activeSeriesFilters.year) parts.push('year=' + encodeURIComponent(activeSeriesFilters.year));
+      if (activeSeriesFilters.year_min) parts.push('year_min=' + encodeURIComponent(activeSeriesFilters.year_min));
+      if (activeSeriesFilters.year_max) parts.push('year_max=' + encodeURIComponent(activeSeriesFilters.year_max));
+      if (activeSeriesFilters.featured === true) parts.push('featured=true');
+      if (activeSeriesFilters.featured === false) parts.push('featured=false');
+
+      const search = document.getElementById('search-input').value.trim();
+      if (search) parts.push('search=' + encodeURIComponent(search));
+
+      let url = '/series?per_page=200';
+      if (parts.length) url += '&' + parts.join('&');
+
+      renderActiveSeriesFilterChips(search);
+
+      try {
+        const data = await adminFetch(url);
+        allSeries = data.series || [];
+        renderSeries(allSeries);
+      } catch (err) {
+        console.error('Failed to load series:', err);
+      }
+    }
+
+    function renderActiveSeriesFilterChips(search) {
+      const filtersBar = document.getElementById('series-active-filters');
+      if (!filtersBar) return;
+      filtersBar.innerHTML = '';
+
+      const applied = [];
+      if (activeSeriesFilters.genre) applied.push({ key: 'genre', label: 'Genre: ' + activeSeriesFilters.genre });
+      if (activeSeriesFilters.year) applied.push({ key: 'year', label: 'Year: ' + activeSeriesFilters.year });
+      if (activeSeriesFilters.year_min || activeSeriesFilters.year_max) {
+        const range = [];
+        if (activeSeriesFilters.year_min) range.push(activeSeriesFilters.year_min);
+        if (activeSeriesFilters.year_max) range.push(activeSeriesFilters.year_max);
+        applied.push({ key: 'year-range', label: 'Year: ' + range.join('\u2013') });
+      }
+      if (activeSeriesFilters.featured === true) applied.push({ key: 'featured', label: 'Featured only' });
+      if (activeSeriesFilters.featured === false) applied.push({ key: 'featured', label: 'Non-featured only' });
+      if (search) applied.push({ key: 'search', label: 'Search: ' + search });
+
+      if (!applied.length) return;
+
+      const chips = applied.map(a => `
+        <span class="admin-filter-tag">
+          ${escapeHtml(a.label)}
+          <button class="admin-filter-tag-remove" data-key="${escapeHtml(a.key)}">&times;</button>
+        </span>
+      `).join('');
+      filtersBar.innerHTML = chips + '<button class="admin-filter-clear" id="series-filter-clear">Clear all</button>';
+
+      filtersBar.querySelectorAll('.admin-filter-tag-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.getAttribute('data-key');
+          if (key === 'year-range') {
+            activeSeriesFilters.year = null;
+            activeSeriesFilters.year_min = null;
+            activeSeriesFilters.year_max = null;
+          } else if (key === 'year') {
+            activeSeriesFilters.year = null;
+          } else if (key === 'genre') {
+            activeSeriesFilters.genre = null;
+          } else if (key === 'featured') {
+            activeSeriesFilters.featured = null;
+          } else if (key === 'search') {
+            document.getElementById('search-input').value = '';
+          }
+          applyActiveSeriesFilters();
+        });
+      });
+      document.getElementById('series-filter-clear').addEventListener('click', clearActiveSeriesFilters);
+    }
+
+    function filterSeries() {
+      applyActiveSeriesFilters();
+    }
+
+    async function loadSeries() {
+      await applyActiveSeriesFilters();
+    }
+
+    function renderSeries(seriesList) {
+      const tbody = document.getElementById('series-tbody');
+      if (seriesList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--admin-text-muted);padding:3rem;">No series found</td></tr>';
+        return;
+      }
+      tbody.innerHTML = seriesList.map(s => {
+        const seasonCount = s.seasons?.length || s.season_count || 0;
+        const epCount = s.episode_count || s.seasons?.reduce((a, se) => a + (se.episodes?.length || 0), 0) || 0;
+        return `
+          <tr>
+            <td><img src="${escapeHtml(mediaUrl(s.poster))}" class="poster-thumb" alt="" onerror="this.src='https://picsum.photos/seed/default/90/130'"></td>
+            <td><strong style="color:var(--admin-white);">${escapeHtml(s.title)}</strong></td>
+            <td>${escapeHtml(s.genre || '-')}</td>
+            <td>${seasonCount}</td>
+            <td>${epCount}</td>
+            <td>${s.is_featured ? '<span style="color:var(--admin-gold);">★ Featured</span>' : '-'}</td>
+            <td class="actions">
+              <a href="edit-content.html?type=series&id=${s.id}" class="btn btn-secondary btn-sm">Edit</a>
+              <button class="btn btn-danger btn-sm" onclick="deleteSeries('${s.id}', '${escapeHtml(s.title).replace(/'/g, "\\'")}')">Delete</button>
+            </td>
+            <td class="hide-mobile-col">${s.year || '-'}</td>
+            <td class="hide-mobile-col">${formatDate(s.created_at)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function deleteSeries(id, title) {
+      showConfirmModal(
+        'Delete Series',
+        `Are you sure you want to delete "<strong>${title}</strong>"? All seasons and episodes will also be deleted. This action cannot be undone.`,
+        async () => {
+          try {
+            await adminFetch(`/series/${id}`, { method: 'DELETE' });
+            showToast('Series deleted successfully.');
+            await loadSeries();
+          } catch (err) {
+            showToast(err.message || 'Failed to delete series.', 'error');
+          }
+        }
+      );
+    }
+  </script>
+</body>
+</html>

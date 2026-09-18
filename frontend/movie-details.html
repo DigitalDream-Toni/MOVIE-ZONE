@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Details - MOVIE ZONE</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%23e50914'/><text y='70' x='50' text-anchor='middle' font-size='60' fill='white' font-weight='bold'>MZ</text></svg>">
+</head>
+<body>
+
+  <nav class="mz-nav">
+    <div class="mz-nav-inner">
+      <a href="index.html" class="mz-nav-logo"><span class="logo-icon">MZ</span>MOVIE ZONE</a>
+      <div class="mz-nav-links">
+        <a href="index.html">Home</a>
+        <a href="movies.html">Movies</a>
+        <a href="series.html">Series</a>
+        <a href="genres.html">Genres</a>
+      </div>
+      <div class="mz-nav-search">
+        <input type="text" placeholder="Search movies..." aria-label="Search movies">
+        <button class="search-toggle" aria-label="Toggle search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+      </div>
+      <button class="mz-menu-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <div class="mz-mobile-nav">
+    <a href="index.html">Home</a>
+    <a href="movies.html">Movies</a>
+    <a href="series.html">Series</a>
+    <a href="genres.html">Genres</a>
+    <a href="search.html">Search</a>
+  </div>
+
+  <div class="mz-detail-hero" id="detail-hero">
+    <div class="mz-detail-hero-backdrop" id="hero-backdrop"></div>
+  </div>
+
+  <div class="mz-detail-content" id="detail-content">
+    <!-- Populated by JS -->
+  </div>
+
+  <!-- Related Movies -->
+  <section class="mz-section" id="related-section" style="display: none;">
+    <div class="mz-section-inner">
+      <div class="mz-row" id="row-related">
+        <div class="mz-section-header">
+          <h2 class="mz-section-title">You Might Also Like</h2>
+        </div>
+        <div class="mz-row-scroll" id="scroll-related"></div>
+        <button class="mz-row-btn mz-row-btn-left" aria-label="Scroll left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="mz-row-btn mz-row-btn-right" aria-label="Scroll right">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews Section -->
+  <section class="mz-section" id="reviews-section">
+    <div class="mz-section-inner">
+      <div class="mz-row">
+        <div class="mz-section-header">
+          <h2 class="mz-section-title">User Reviews</h2>
+        </div>
+
+        <!-- Rating & Comment Form -->
+        <div class="mz-review-form" id="review-form" style="margin-bottom: 2rem;">
+          <div class="mz-review-rating" id="rating-stars">
+            <button type="button" class="mz-star" data-value="1" aria-label="1 star">☆</button>
+            <button type="button" class="mz-star" data-value="2" aria-label="2 stars">☆</button>
+            <button type="button" class="mz-star" data-value="3" aria-label="3 stars">☆</button>
+            <button type="button" class="mz-star" data-value="4" aria-label="4 stars">☆</button>
+            <button type="button" class="mz-star" data-value="5" aria-label="5 stars">☆</button>
+          </div>
+          <div class="mz-review-rating-label" id="rating-label">Rate this movie</div>
+          <textarea class="mz-textarea" id="review-comment" placeholder="Share your thoughts about this movie..." rows="3"></textarea>
+          <button class="mz-btn mz-btn-primary" id="review-submit" style="margin-top: 0.8rem;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Submit Review
+          </button>
+          <div class="mz-review-error" id="review-error" style="color: var(--mz-red); margin-top: 0.5rem; display: none;"></div>
+          <input type="hidden" id="review-user-id" value="">
+        </div>
+
+        <!-- Review List -->
+        <div class="mz-review-list" id="review-list">
+          <div style="text-align:center;padding:2rem;color:var(--mz-text-muted);" id="review-empty">No reviews yet. Be the first to review!</div>
+          <div id="review-items" style="display:none;"></div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="mz-review-pagination" id="review-pagination" style="display:none;margin-top:1.5rem;">
+          <button class="mz-btn mz-btn-outline mz-btn-sm" id="review-prev" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg>
+            Previous
+          </button>
+          <span class="mz-review-page-info" id="review-page-info">Page 1 of 1</span>
+          <button class="mz-btn mz-btn-outline mz-btn-sm" id="review-next" style="display:none;">
+            Next
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer (rendered by js/app.js) -->
+  <footer id="mz-footer-root"></footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const movieId = getQueryParam('id');
+      if (!movieId) {
+        window.location.href = 'movies.html';
+        return;
+      }
+
+      let movie = null;
+      try {
+        movie = await api.get(`/movies/${movieId}`);
+      } catch (err) {
+        console.error('Failed to load movie:', err);
+        document.getElementById('detail-content').innerHTML = `
+          <div style="text-align: center; padding: 4rem; grid-column: 1 / -1;">
+            <h2 style="color: var(--mz-text-muted);">Movie not found</h2>
+            <a href="movies.html" class="mz-btn mz-btn-primary" style="margin-top: 1rem;">Browse Movies</a>
+          </div>
+        `;
+        return;
+      }
+
+      document.title = `${movie.title} - MOVIE ZONE`;
+
+      // Hero backdrop
+      document.getElementById('hero-backdrop').style.backgroundImage = `url('${mediaUrl(movie.backdrop || movie.poster)}')`;
+
+      // Detail content
+      const content = document.getElementById('detail-content');
+      content.innerHTML = `
+        <div class="mz-detail-poster">
+          <img src="${escapeHtml(mediaUrl(movie.poster))}" alt="${escapeHtml(movie.title)}" onerror="this.src='https://picsum.photos/seed/default/400/600'">
+        </div>
+        <div class="mz-detail-info">
+          <h1 class="mz-detail-title">${escapeHtml(movie.title)}</h1>
+          <div class="mz-detail-meta">
+            <span class="year-tag">${movie.year || 'N/A'}</span>
+            ${movie.genre ? `<span class="genre-tag">${escapeHtml(movie.genre)}</span>` : ''}
+            <span class="mz-tag">Movie</span>
+          </div>
+          <p class="mz-detail-desc">${escapeHtml(movie.description || 'No description available.')}</p>
+          <div class="mz-detail-actions">              ${movie.watch_url ? `
+                <a href="${movie.watch_url}" target="_blank" class="mz-btn mz-btn-primary">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M8 5v14l11-7z"/></svg>
+                  Watch Now
+                </a>
+              ` : ''}
+            ${movie.download_url ? `
+              <a href="${movie.download_url}" target="_blank" class="mz-btn mz-btn-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Download
+              </a>
+            ` : ''}
+            <a href="movies.html" class="mz-btn mz-btn-outline">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              Back to Movies
+            </a>
+          </div>
+        </div>
+      `;
+
+      // Related movies
+      try {
+        const allMoviesData = await api.get('/movies?per_page=200');
+        const allMovies = allMoviesData.movies || [];
+        const related = allMovies.filter(m => m.id !== movieId && m.genre === movie.genre).slice(0, 10);
+        if (related.length > 0) {
+          document.getElementById('related-section').style.display = 'block';
+          const scrollEl = document.getElementById('scroll-related');
+          related.forEach(m => scrollEl.appendChild(createMovieCard(m)));
+          initRowScroll(document.getElementById('row-related'));
+        }
+      } catch (relatedErr) {
+        console.error('Failed to load related movies:', relatedErr);
+      }
+
+      // --- Reviews ---
+      const reviewUserId = localStorage.getItem('mz-review-user-id') || (() => {
+        const id = 'anon_' + Math.random().toString(36).slice(2, 10);
+        localStorage.setItem('mz-review-user-id', id);
+        return id;
+      })();
+      document.getElementById('review-user-id').value = reviewUserId;
+
+      let reviewPage = 1;
+      let reviewTotal = 0;
+      let reviewTotalPages = 1;
+
+      // Star rating UI
+      const stars = document.querySelectorAll('#rating-stars .mz-star');
+      let selectedRating = 0;
+
+      function renderStars(rating) {
+        stars.forEach(s => {
+          const val = parseInt(s.dataset.value);
+          s.textContent = val <= rating ? '★' : '☆';
+          s.classList.toggle('selected', val <= rating);
+        });
+      }
+      renderStars(0);
+
+      stars.forEach(star => {
+        star.addEventListener('click', () => {
+          selectedRating = parseInt(star.dataset.value);
+          renderStars(selectedRating);
+          document.getElementById('rating-label').textContent =
+            `${selectedRating} star${selectedRating > 1 ? 's' : ''} - Thanks for your rating!`;
+        });
+        star.addEventListener('mouseenter', () => {
+          const val = parseInt(star.dataset.value);
+          renderStars(val);
+        });
+        star.forEachStar = null;
+      });
+      stars.forEach(star => {
+        star.addEventListener('mouseleave', () => renderStars(selectedRating));
+      });
+
+      async function loadReviews() {
+        try {
+          const data = await api.get(`/reviews/movies/${movieId}?page=${reviewPage}&per_page=6`);
+          const items = document.getElementById('review-items');
+          const empty = document.getElementById('review-empty');
+          const list = document.getElementById('review-list');
+          reviewTotal = data.pagination.total;
+          reviewTotalPages = data.pagination.total_pages;
+
+          if (data.reviews.length === 0 && reviewPage === 1) {
+            empty.style.display = 'block';
+            items.style.display = 'none';
+          } else {
+            empty.style.display = 'none';
+            items.style.display = 'block';
+            if (reviewPage === 1) items.innerHTML = '';
+            data.reviews.forEach(r => {
+              const div = document.createElement('div');
+              div.className = 'mz-review-item';
+              const date = r.created_at ? new Date(r.created_at).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : 'Recently';
+              div.innerHTML = `
+                <div class="mz-review-header">
+                  <div class="mz-review-user">User ${r.user_id ? r.user_id.slice(-6) : 'Anonymous'}</div>
+                  <div class="mz-review-stars">${'★'.repeat(r.rating || 0)}${'☆'.repeat((5 - (r.rating || 0)))}</div>
+                </div>
+                ${r.comment ? `<p class="mz-review-comment">${escapeHtml(r.comment)}</p>` : ''}
+                <div class="mz-review-date">${date}</div>
+              `;
+              items.appendChild(div);
+            });
+          }
+          updateReviewPagination();
+        } catch (err) {
+          console.error('Failed to load reviews:', err);
+        }
+      }
+
+      function updateReviewPagination() {
+        const prev = document.getElementById('review-prev');
+        const next = document.getElementById('review-next');
+        const info = document.getElementById('review-page-info');
+        const pag = document.getElementById('review-pagination');
+        if (reviewTotalPages <= 1) {
+          pag.style.display = 'none';
+        } else {
+          pag.style.display = 'flex';
+          prev.style.display = reviewPage > 1 ? 'inline-flex' : 'none';
+          next.style.display = reviewPage < reviewTotalPages ? 'inline-flex' : 'none';
+          info.textContent = `Page ${reviewPage} of ${reviewTotalPages}`;
+        }
+      }
+
+      document.getElementById('review-prev').addEventListener('click', () => {
+        if (reviewPage > 1) { reviewPage--; loadReviews(); }
+      });
+      document.getElementById('review-next').addEventListener('click', () => {
+        if (reviewPage < reviewTotalPages) { reviewPage++; loadReviews(); }
+      });
+
+      document.getElementById('review-submit').addEventListener('click', async () => {
+        const comment = document.getElementById('review-comment').value.trim();
+        const errorEl = document.getElementById('review-error');
+
+        if (selectedRating === 0) {
+          errorEl.textContent = 'Please select a star rating.';
+          errorEl.style.display = 'block';
+          return;
+        }
+        errorEl.style.display = 'none';
+
+        try {
+          await api.post('/reviews', {
+            movie_id: movieId,
+            rating: selectedRating,
+            comment: comment || '',
+            user_id: reviewUserId,
+          });
+          document.getElementById('review-comment').value = '';
+          selectedRating = 0;
+          renderStars(0);
+          document.getElementById('rating-label').textContent = 'Rate this movie';
+          showToast('Review submitted!');
+          reviewPage = 1;
+          loadReviews();
+        } catch (err) {
+          errorEl.textContent = err.message || 'Failed to submit review.';
+          errorEl.style.display = 'block';
+        }
+      });
+
+      loadReviews();
+    });
+  </script>
+</body>
+</html>

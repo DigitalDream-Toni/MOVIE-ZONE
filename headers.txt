@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+date: Sun, 13 Sep 2026 12:38:35 GMT
+server: uvicorn
+cache-control: no-cache
+content-type: image/jpeg
+content-length: 86258
+last-modified: Sun, 13 Sep 2026 12:37:46 GMT
+etag: "279ba126e35be4344cce88a434218a3b"
+
