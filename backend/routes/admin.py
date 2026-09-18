@@ -57,10 +57,14 @@ def get_stats(authorization: Optional[str] = Header(None)):
 def get_image_health(authorization: Optional[str] = Header(None)):
     """
     Check every movie/series poster and backdrop that references an
-    uploaded file and report which files are missing from disk.
+    uploaded file and report which files are missing.
 
+    Cloudinary-hosted images (full https://res.cloudinary.com/... URLs)
+    are skipped - Cloudinary serves them directly from its CDN.
+
+    Local paths (development mode only) are checked against disk.
     Root cause this guards against: files being deleted outside the app
-    (e.g. OneDrive sync pruning backend/uploads) while the database
+    (e.g. a deploy to Render, where the disk is wiped) while the database
     keeps pointing at them - producing silent 404s everywhere.
     """
     verify_token(authorization)
@@ -68,32 +72,36 @@ def get_image_health(authorization: Optional[str] = Header(None)):
 
     broken = []
     checked = 0
-    for table, label in (("movies", "movie"), ("series", "series")):
-        rows = conn.execute(
-            f"SELECT id, title, poster, backdrop FROM {table}"
-        ).fetchall()
-        for row in rows:
-            for column in ("poster", "backdrop"):
-                path = row[column]
-                if not path or not path.startswith("/api/upload/images/"):
-                    continue  # empty, external URL, or unknown format
-                checked += 1
-                rel = path[len("/api/upload/images/"):]
-                if os.path.exists(os.path.join(UPLOAD_DIR, rel)):
-                    continue
-                broken.append(
-                    {
-                        "type": label,
-                        "id": row["id"],
-                        "title": row["title"],
-                        "field": column,
-                        "path": path,
-                        "editUrl": f"/admin/edit-content.html?type={label}&id={row['id']}",
-                    }
-                )
-                continue
-
-            conn.close()
+    try:
+        for table, label in (("movies", "movie"), ("series", "series")):
+            rows = conn.execute(
+                f"SELECT id, title, poster, backdrop FROM {table}"
+            ).fetchall()
+            for row in rows:
+                for column in ("poster", "backdrop"):
+                    path = row[column]
+                    if not path or not path.startswith("/api/upload/images/"):
+                        continue  # empty, external URL, or Cloudinary
+                    checked += 1
+                    rel = path[len("/api/upload/images/"):]
+                    if os.path.exists(os.path.join(UPLOAD_DIR, rel)):
+                        continue
+                    broken.append(
+                        {
+                            "type": label,
+                            "id": row["id"],
+                            "title": row["title"],
+                            "field": column,
+                            "path": path,
+                            "editUrl": f"/admin/edit-content.html?type={label}&id={row['id']}",
+                            "note": (
+                                "Not found on this server's disk. On Render the disk is wiped "
+                                "on every deploy - configure CLOUDINARY_URL and re-upload this image."
+                            ),
+                        }
+                    )
+    finally:
+        conn.close()
 
     return {"ok": len(broken) == 0, "checked": checked, "broken": broken}
 

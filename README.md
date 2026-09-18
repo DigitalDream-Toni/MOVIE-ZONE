@@ -10,7 +10,7 @@ A premium movie streaming and discovery website.
 | **Database** | SQLite | No setup needed, stored in one file |
 | **Frontend** | HTML + CSS + JavaScript | No frameworks, beginner-friendly |
 | **Auth** | JWT + bcrypt | Secure admin login |
-| **File uploads** | Multipart form upload | Images stored locally in `backend/uploads/` |
+| **File uploads** | Multipart + Cloudinary | Images persist on Render (local disk in dev) |
 
 ## Quick Start
 
@@ -166,13 +166,45 @@ The homepage (`index.html` + `home.js`) additionally provides:
 
 ## Image Upload System
 
-Images are uploaded via the admin dashboard and stored in `backend/uploads/`:
-- **Poster images:** `backend/uploads/poster/`
-- **Backdrop images:** `backend/uploads/backdrop/`
+Images are uploaded via the admin dashboard and stored by `backend/storage.py`:
+
+- **Production (Render):** stored in **Cloudinary** and the database keeps the full `https://res.cloudinary.com/...` URL. This is required on Render because the server's disk is wiped on every deploy — anything saved locally would vanish and leave broken posters behind.
+- **Local development:** stored on disk in `backend/uploads/` (`poster/` and `backdrop/` subfolders), and the database keeps a root-relative path like `/api/upload/images/poster/Moana.jpg`.
+
+The backend picks automatically: **Cloudinary is used when the `CLOUDINARY_URL` environment variable is set**, otherwise local disk. No code changes needed to switch.
 
 When uploading, the filename uses the movie/series title (e.g., `Moana.jpg`) instead of a random hash. If a file with that name already exists, a short random suffix is appended.
 
-The **Image Health** page (`admin/image-health.html`) scans all movies and series to detect any that reference images missing from disk.
+The **Image Health** page (`admin/image-health.html`) scans all movies and series to detect any that reference images missing from disk. Cloudinary-hosted images are always considered healthy (they're served by Cloudinary's CDN).
+
+## Deploying to Render
+
+The backend is deployed on Render at `https://movie-zone-qgda.onrender.com` and the frontend on Vercel.
+
+### Required: persistent image storage (Cloudinary)
+
+Render's free tier has an **ephemeral disk** — every deploy wipes uploaded files. To keep posters/backdrops:
+
+1. Create a free account at [cloudinary.com](https://cloudinary.com) and copy the **CLOUDINARY_URL** from the dashboard (looks like `cloudinary://<api_key>:<api_secret>@<cloud_name>`).
+2. In the Render dashboard, open your service → **Environment** → add:
+   ```
+   CLOUDINARY_URL = cloudinary://<api_key>:<api_secret>@<cloud_name>
+   ```
+3. Redeploy. New uploads go to Cloudinary and survive redeploys.
+
+Also make sure `JWT_SECRET` is set as a Render environment variable (change it from the default).
+
+> **Already have images in `backend/uploads/` from before?** They're gone after the next deploy. Re-upload them from the admin dashboard once `CLOUDINARY_URL` is configured — they'll be stored in Cloudinary permanently.
+
+### Deploy steps
+
+1. Push this repo to GitHub.
+2. On Render, create a **Web Service** from the repo:
+   - **Root directory:** `backend`
+   - **Build command:** `pip install -r requirements.txt`
+   - **Start command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
+3. Add the environment variables above (`CLOUDINARY_URL`, `JWT_SECRET`).
+4. Point the frontend at the Render URL — `API_URL` in `frontend/js/app.js` and `admin/js/admin.js` (and `admin/login.html`) must match your Render URL.
 
 ## Customization
 

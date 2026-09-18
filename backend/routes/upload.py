@@ -1,24 +1,31 @@
 """
 MOVIE ZONE - Image Upload Route
 ================================
-Handles uploading poster and backdrop images to the server.
-Images are saved to backend/uploads/ and served as static files.
+Handles uploading poster and backdrop images.
+
+Where images end up is decided by backend/storage.py:
+- Production (Render): Cloudinary, because the server's disk is wiped
+  on every deploy and uploaded files would otherwise disappear.
+- Local development: backend/uploads/, as before.
 """
 
 import os
 import uuid
-from fastapi import APIRouter, File, Form, UploadFile, HTTPException, Header
 from typing import Optional
 
+from fastapi import APIRouter, File, Form, UploadFile, HTTPException, Header
+from fastapi.responses import FileResponse
+
 from routes.auth import verify_token
+from storage import UPLOAD_DIR, save_image
 
 router = APIRouter(prefix="/api/upload", tags=["upload"])
 
-# Where uploaded images are stored
-UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
-
 # Only allow these image types
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+
+# Only allow these storage subfolders (prevents path tricks via "category")
+ALLOWED_CATEGORIES = {"poster", "backdrop", "general"}
 
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
 
@@ -52,11 +59,12 @@ def upload_image(
     if len(contents) > MAX_IMAGE_BYTES:
         raise HTTPException(status_code=400, detail="File too large. Maximum size is 10MB.")
 
-
-
-    # Create category subfolder if needed
-    category_dir = os.path.join(UPLOAD_DIR, category)
-    os.makedirs(category_dir, exist_ok=True)
+    # Validate the category (it becomes a folder/public-id segment)
+    if category not in ALLOWED_CATEGORIES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Category '{category}' not allowed. Use poster, backdrop, or general."
+        )
 
     # ---------- filename logic ----------
     ext = file.filename.split(".")[-1] if "." in file.filename else "jpg"
@@ -65,51 +73,27 @@ def upload_image(
     if not safe_name:
         safe_name = uuid.uuid4().hex[:8]
 
-    # If a readable name was supplied, find a free slot so the first upload of a
-    # given title always wins the clean filename.
-    if name:
-        candidate = safe_name
-        for _ in range(10):
-            path = os.path.join(category_dir, f"{candidate}.{ext}")
-            if not os.path.exists(path):
-                filename = f"{candidate}.{ext}"
-                break
-            candidate = f"{safe_name}-{uuid.uuid4().hex[:6]}"
-        else:
-            candidate = f"{safe_name}-{uuid.uuid4().hex[:6]}"
-            filename = f"{candidate}.{ext}"
-    else:
-        filename = f"{uuid.uuid4().hex[:12]}.{ext}"
-
-    filepath = os.path.join(category_dir, filename)
-
-    # Save file
-    with open(filepath, "wb") as f:
-        f.write(contents)
-
-    # The readable base name (without extension) of what was actually saved — used
-    # by the admin page to remember the preferred name for future re-uploads.
-    saved_base = os.path.splitext(filename)[0]
-
-    # Return the URL to access this image
-    image_url = f"/api/upload/images/{category}/{filename}"
+    # Store the image (Cloudinary in production, local disk in development)
+    saved = save_image(contents, category, ext, safe_name)
 
     return {
-        "url": image_url,
-        "filename": filename,
+        "url": saved["url"],
+        "filename": saved["filename"],
         "category": category,
         "size": len(contents),
         "message": "Image uploaded successfully.",
-        "saved_name": saved_base,
+        "saved_name": saved["saved_name"],
         "name": name,
+        "storage": saved["storage"],
     }
 
 
 @router.get("/images/{category}/{filename}")
 def serve_image(category: str, filename: str):
     """
-    Serve an uploaded image file.
-    This allows the frontend to display uploaded images.
+    Serve a locally-stored uploaded image file.
+    (Images stored in Cloudinary are served by Cloudinary's CDN directly,
+    so this route only handles local-development uploads.)
     """
     filepath = os.path.join(UPLOAD_DIR, category, filename)
 
@@ -129,7 +113,6 @@ def serve_image(category: str, filename: str):
 
     # no-cache: filenames are unique per upload, but an admin replacing an
     # image should see the new file immediately, not a cached copy.
-    from fastapi.responses import FileResponse
     return FileResponse(filepath, media_type=content_type, headers={
         "Cache-Control": "no-cache, no-store, must-revalidate",
         "Pragma": "no-cache",

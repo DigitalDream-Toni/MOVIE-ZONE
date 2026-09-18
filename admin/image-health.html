@@ -161,7 +161,7 @@
             <td><span class="ih-type">${escapeHtml(b.type)}</span></td>
             <td><strong style="color: var(--admin-white);">${escapeHtml(b.title)}</strong></td>
             <td>${escapeHtml(b.field)}</td>
-            <td><code class="ih-path">${escapeHtml(b.path)}</code></td>
+            <td><code class="ih-path">${escapeHtml(b.path)}</code>${b.note ? `<div style="color:#f87171;font-size:12px;margin-top:4px;max-width:420px;">${escapeHtml(b.note)}</div>` : ''}</td>
             <td class="actions"><a href="${b.editUrl}" class="btn btn-secondary btn-sm">Fix in editor</a></td>
           </tr>
         `).join('');
