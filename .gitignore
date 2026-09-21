@@ -4,6 +4,7 @@ __pycache__/
 *.pyo
 
 # Backend
+server.log
 backend/server.log
 backend/token.txt
 backend/headers.txt
